@@ -1,0 +1,85 @@
+var xPos = 10;
+var yPos = 10;
+
+// PRESSION
+var pression_actuelle = function(alt) {
+    return round(1013.25*pow(1-(0.0065*alt)/288.15, 5.255));
+};
+
+// ACCELERATION
+var acceleration_actuelle = function(acceleration_precedente, poussee, masse) {
+    return round(acceleration_precedente + (poussee - 9.8 * masse) / masse);
+};
+
+// MASSE
+var masse_actuelle = function(masse_fusee_initiale, debit_massique, sec) {
+    var masse_fusee = masse_fusee_initiale * 0.2;
+    var masse_combustible_initiale = masse_fusee_initiale * 0.8;
+    return round(masse_fusee + masse_combustible_initiale-(debit_massique*sec));
+};
+
+// VITESSE
+var vitesse_actuelle = function(temps, position_actuelle) {
+    return round(position_actuelle / temps);
+};
+
+
+
+var xBox = 150;
+var yBox = 80;
+var xText = 400 - xBox - 10;
+var yText = 10;
+
+// INIT
+var altitude = 0;
+var pression = pression_actuelle(altitude);
+var masse = 549000;
+var debit_massique = 2500;
+var poussee = 7607000;
+var acceleration = acceleration_actuelle(0, 7607000, 549000);
+var vitesse = 0;
+var temps = "00:00";
+var start_mission = round(Date.now()/1000);
+var timer = [],
+
+
+
+draw = function() {
+
+    var current_time = round(Date.now()/1000);
+
+    background(145, 204, 255);
+
+    // CALCUL
+    masse = masse_actuelle(549000, debit_massique, temps);
+    acceleration += acceleration_actuelle(acceleration, 7607000, 549000);
+    altitude += acceleration;
+    vitesse = vitesse_actuelle(temps, altitude);
+    pression = pression_actuelle(altitude);
+
+    // TELEMETRIE
+    stroke(0, 0, 0);
+    fill(224, 224, 224);
+    rect(xText, yText, xBox, yBox);
+    textSize(20);
+    fill(0, 0, 0);
+    text(temps, xText+5, yText+25);
+    textSize(11);
+    text("Acceleration:", xText+5, yText+40);
+    text("1000"+" m/s", xText+90, yText+40);
+    text("Vitesse:", xText+5, yText+55);
+    text("5000"+" km/h", xText+90, yText+55);
+    text("Pression:", xText+5, yText+70);
+    text("1013"+" Pa", xText+90, yText+70);
+
+
+    fill(128, 128, 128);
+    rect(0, 380, 399, 20);
+
+    if (current_time in timer) {
+        setTimeout(timer, 1000);
+
+    }
+
+    text(start_mission, 100, 300);
+};
